@@ -1,7 +1,6 @@
 package com.socialLogin.project.repository;
 
 import com.socialLogin.project.entity.Chat;
-import com.socialLogin.project.entity.Reels;
 import com.socialLogin.project.entity.Users;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

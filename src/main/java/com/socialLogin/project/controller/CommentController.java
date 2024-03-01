@@ -33,15 +33,15 @@ public class CommentController {
     public ResponseEntity<BaseResponse<Comment>> createComment(@RequestBody Comment comment,
                                                              @RequestHeader("Authorization")String token,
                                                              @PathVariable Integer postId){
-     Users users = userService.findUserFromToken(token);
-     Comment createdComments=commentService.createComment(comment,users.getUserid(),postId);
-     return ResponseEntity.ok(new BaseResponse<>(HttpStatus.OK.value(),"Comments created",createdComments));
+     Users users = userService.findUserFromToken(token).data();
+     BaseResponse<Comment> createdComments=commentService.createComment(comment,users.getUserid(),postId);
+     return ResponseEntity.status(HttpStatus.OK.value()).body(createdComments);
     }
 
     @PutMapping("/comment/like/{commentId}")
     public ResponseEntity<BaseResponse<Comment>> likeComment(@RequestHeader("Authorization")String token,Integer commentId){
-        Users reqUser=userService.findUserFromToken(token);
-        Comment likedComment = commentService.likeComment(commentId,reqUser.getUserid());
-        return ResponseEntity.ok(new BaseResponse<>(HttpStatus.OK.value(),"User Liked the Comment",likedComment));
+        Users reqUser=userService.findUserFromToken(token).data();
+        BaseResponse<Comment> likedComment = commentService.likeComment(commentId,reqUser.getUserid());
+        return ResponseEntity.status(HttpStatus.OK.value()).body(likedComment);
     }
 }

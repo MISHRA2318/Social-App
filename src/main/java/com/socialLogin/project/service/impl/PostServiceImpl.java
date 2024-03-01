@@ -1,14 +1,14 @@
 package com.socialLogin.project.service.impl;
 
-import com.socialLogin.project.dto.response.UserResponse;
+import com.socialLogin.project.dto.BaseResponse;
 import com.socialLogin.project.entity.Post;
 import com.socialLogin.project.entity.Users;
 import com.socialLogin.project.repository.PostRepository;
 import com.socialLogin.project.repository.UserRepository;
 import com.socialLogin.project.service.PostService;
 import com.socialLogin.project.service.UserService;
-import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -29,9 +29,9 @@ public class PostServiceImpl implements PostService {
     UserRepository userRepository;
 
     @Override
-    public Post createNewPost(Post posts, Integer userId) {
+    public BaseResponse<Post> createNewPost(Post posts, Integer userId) {
 
-        UserResponse users = userService.findById(userId);
+        Users users = userService.findById(userId).data();
 
         Post newPost = new Post();
         newPost.setCaptions(posts.getCaptions());
@@ -39,7 +39,9 @@ public class PostServiceImpl implements PostService {
         newPost.setVideo(posts.getVideo());
         newPost.setUsers(users);
         newPost.setCreatedAt(LocalDateTime.now());
-        return postRepository.save(newPost);
+        return new BaseResponse<>(HttpStatus.OK.value()
+        ,"Post Created Successfully",
+                postRepository.save(newPost));
     }
 
     @Override
@@ -60,14 +62,17 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public List<Post> findPostbyUserIdhandling(Integer userId) {
-        return postRepository.findPostByUserId(userId);
+    public BaseResponse<List<Post>> findPostbyUserIdhandling(Integer userId) {
+        List<Post> posts = postRepository.findPostByUserId(userId);
+        return new BaseResponse<>(HttpStatus.OK.value(),
+                "Post Handled by ID"
+                ,posts);
     }
 
     @Override
     public String deletePost(Integer postId, Integer userId) {
         Post post = getPostById(postId);
-        Users users = userService.findById(userId);
+        Users users = userService.findById(userId).data();
 
         if (post.getUsers().getUserid() != users.getUserid()) {
             throw new RuntimeException("Wrong User selected");
@@ -76,35 +81,36 @@ public class PostServiceImpl implements PostService {
         return "Post has been deleted Successfully";
     }
 
+//    @Override
+//    @Transactional
+//    public Post savedPost(Integer postId, Integer userId) {
+//
+//        Post post = getPostById(postId);
+//        UserResponse users = userService.findById(userId).data();
+//
+//        if (users.getSavedPost().contains(post)) {
+//            users.getSavedPost().remove(post);
+//        } else {
+//            users.getSavedPost().add(post);
+//        }
+//
+//        userRepository.save(users);
+//        return post;
+//    }
+
     @Override
-    @Transactional
-    public Post savedPost(Integer postId, Integer userId) {
+    public BaseResponse<Post> likePost(Integer postId, Integer userId) {
 
         Post post = getPostById(postId);
-        Users users = userService.findById(userId);
-
-        if (users.getSavedPost().contains(post)) {
-            users.getSavedPost().remove(post);
-        } else {
-            users.getSavedPost().add(post);
-        }
-
-        userRepository.save(users);
-        return post;
-    }
-
-    @Override
-    public Post likePost(Integer postId, Integer userId) {
-
-        Post post = getPostById(postId);
-        Users users = userService.findById(userId);
+        Users users = userService.findById(userId).data();
 
         if (post.getLiked().contains(users)) {
             post.getLiked().remove(users);
         } else {
             post.getLiked().add(users);
         }
-        userRepository.save(users);
-        return post;
+        return new BaseResponse<>(HttpStatus.OK.value(),
+                "Post is being Liked",
+                postRepository.save(post));
     }
 }

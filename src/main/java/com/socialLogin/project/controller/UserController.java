@@ -1,13 +1,8 @@
 package com.socialLogin.project.controller;
 
-import com.fasterxml.jackson.databind.ser.Serializers;
 import com.socialLogin.project.dto.BaseResponse;
-import com.socialLogin.project.dto.request.UserRequest;
-import com.socialLogin.project.dto.response.UpdatedUsers;
-import com.socialLogin.project.dto.response.UserResponse;
 import com.socialLogin.project.entity.Users;
 import com.socialLogin.project.repository.UserRepository;
-import com.socialLogin.project.service.ReelsService;
 import com.socialLogin.project.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -33,30 +28,30 @@ public class UserController {
     UserService userService;
 
     @GetMapping("/users")
-    public ResponseEntity<BaseResponse<List<UserResponse>>> getAllUsers()
+    public ResponseEntity<BaseResponse<List<Users>>> getAllUsers()
     {
-        BaseResponse<List<UserResponse>> users = userService.findAllUsers();
+        BaseResponse<List<Users>> users = userService.findAllUsers();
         return ResponseEntity.status(HttpStatus.OK.value()).body(users);
     }
 
     @GetMapping("/users/{userId}")
-    public ResponseEntity<BaseResponse<UserResponse>> getUserbyIdHandler(@PathVariable("userId") Integer id) {
+    public ResponseEntity<BaseResponse<Users>> getUserbyIdHandler(@PathVariable("userId") Integer id) {
 
-        BaseResponse<UserResponse> savedUser = userService.findById(id);
+        BaseResponse<Users> savedUser = userService.findById(id);
 
         return ResponseEntity.status(HttpStatus.OK.value()).body(savedUser);
     }
 
     @GetMapping("/user/{email}")
-    public ResponseEntity<BaseResponse<UserResponse>> getUserbyEmailHandler(@PathVariable("email") String email){
-        BaseResponse<UserResponse> savedUser=userService.findByemail(email);
+    public ResponseEntity<BaseResponse<Users>> getUserbyEmailHandler(@PathVariable("email") String email){
+        BaseResponse<Users> savedUser=userService.findByemail(email);
         return ResponseEntity.status(HttpStatus.OK.value()).body(savedUser);
     }
 
     @PutMapping("/users")
-    public ResponseEntity<BaseResponse<UpdatedUsers>> updateUserHandler(@RequestBody UserRequest user, @RequestHeader("Authorization")String token) {
-        UserResponse reqUser = userService.findUserFromToken(token).data();
-        BaseResponse<UpdatedUsers> updatedUser = userService.updateUser(user,reqUser.getUserid());
+    public ResponseEntity<BaseResponse<Users>> updateUserHandler(@RequestBody Users user, @RequestHeader("Authorization")String token) {
+        Users reqUser = userService.findUserFromToken(token).data();
+        BaseResponse<Users> updatedUser = userService.updateUser(user,reqUser.getUserid());
         return ResponseEntity.status(HttpStatus.OK.value()).body(updatedUser);
     }
 
@@ -74,8 +69,8 @@ public class UserController {
     }
 
     @GetMapping("/user/profile")
-    public BaseResponse<UserResponse> getUserWithProfile(@RequestHeader("Authorization")String token){
-        UserResponse user = userService.findUserFromToken(token).data();
+    public BaseResponse<Users> getUserWithProfile(@RequestHeader("Authorization")String token){
+        Users user = userService.findUserFromToken(token).data();
       return new BaseResponse<>(
               HttpStatus.OK.value(),
               "User with Profile",

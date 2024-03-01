@@ -25,6 +25,7 @@ public class Post {
     private String image;
     private String video;
 
+
     @JsonIgnore
     @ManyToOne
     private Users users;
@@ -32,6 +33,7 @@ public class Post {
 //    @JsonIgnore
     @OneToMany
     private List<Users> liked;
+
 
     @OneToMany
     private List<Comment> comments = new ArrayList<>();

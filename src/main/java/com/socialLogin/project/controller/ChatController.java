@@ -2,7 +2,6 @@ package com.socialLogin.project.controller;
 
 import com.socialLogin.project.dto.BaseResponse;
 import com.socialLogin.project.dto.request.ChatRequest;
-import com.socialLogin.project.dto.response.UserResponse;
 import com.socialLogin.project.entity.Chat;
 import com.socialLogin.project.entity.Users;
 import com.socialLogin.project.service.ChatService;
@@ -34,26 +33,26 @@ public class ChatController {
     public ResponseEntity<BaseResponse<Chat>>createChat(@RequestHeader("Authorization")String token
                                           , @RequestBody ChatRequest chatRequest){
 
-        UserResponse reqUsers = userService.findUserFromToken(token);
-        Users users=userService.findById(chatRequest.getUserId());
+        Users reqUsers = userService.findUserFromToken(token).data();
+        Users users= userService.findById(chatRequest.getUserId()).data();
 
-        Chat chat = chatService.createChat(reqUsers,users);
-        return ResponseEntity.ok(new BaseResponse<>(HttpStatus.OK.value(),"Chat Room Created",chat));
+        BaseResponse<Chat> chat = chatService.createChat(reqUsers,users);
+        return ResponseEntity.status(HttpStatus.OK.value()).body(chat);
     }
 
     @GetMapping("/chat/user")
     public ResponseEntity<BaseResponse<List<Chat>>> getChatById(@RequestHeader("Authorization")String token){
 
-        Users users = userService.findUserFromToken(token);
+        Users users = userService.findUserFromToken(token).data();
 
-        List<Chat> chats = chatService.findUserChat(users.getUserid());
-        return ResponseEntity.ok(new BaseResponse<>(HttpStatus.OK.value(),"Chats of User  by Id",chats));
+        BaseResponse<List<Chat>> chats = chatService.findUserChat(users.getUserid());
+        return ResponseEntity.status(HttpStatus.OK.value()).body(chats);
     }
 
     @GetMapping("/chat/{chatId}")
     public ResponseEntity<BaseResponse<Chat>> chatById(@PathVariable("chatId") Integer chatId) throws Exception {
-        Chat chats = chatService.chatById(chatId);
-        return ResponseEntity.ok(new BaseResponse<>(HttpStatus.OK.value(),"Chats by Chat Id",chats));
+        BaseResponse<Chat> chats = chatService.chatById(chatId);
+        return ResponseEntity.status(HttpStatus.OK.value()).body(chats);
     }
 
 }

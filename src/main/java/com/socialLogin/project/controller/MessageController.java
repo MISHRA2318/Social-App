@@ -33,14 +33,14 @@ public class MessageController {
     public ResponseEntity<BaseResponse<Message>> createMessage(@RequestBody Message message,
                                                               @RequestHeader("Authorization") String token,
                                                               @PathVariable("chatId") Integer chatId) throws Exception {
-        Users users = userService.findUserFromToken(token);
+        Users users = userService.findUserFromToken(token).data();
         Message messages = messageService.createMessage(users, chatId, message);
         return ResponseEntity.ok(new BaseResponse<>(HttpStatus.OK.value(), "Message Created ",messages));
     }
 
     @GetMapping("/messages/chat/{chatId}")
     public ResponseEntity<BaseResponse<List<Message>>> getMessageByChatId(@RequestHeader("Authorization") String token, @PathVariable Integer chatId) throws Exception {
-        Users users = userService.findUserFromToken(token);
+        Users users = userService.findUserFromToken(token).data();
         List<Message> messages = messageService.findChatMessages(chatId);
         return ResponseEntity.ok(new BaseResponse<>(HttpStatus.OK.value(),"Retreived Messages by Id",messages));
     }

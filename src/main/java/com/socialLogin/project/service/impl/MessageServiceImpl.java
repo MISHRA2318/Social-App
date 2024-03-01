@@ -29,8 +29,8 @@ public class MessageServiceImpl implements MessageService {
 
         Message message= new Message();
 
-        System.out.println(users);
-        Chat chats = chatService.chatById(chatId);
+
+        Chat chats = chatService.chatById(chatId).data();
         message.setChat(chats);
         message.setContent(chat.getContent());
         message.setImage(chat.getImage());
@@ -45,7 +45,7 @@ public class MessageServiceImpl implements MessageService {
     @Override
     public List<Message> findChatMessages(Integer chatId) throws Exception {
 
-        Chat chat = chatService.chatById(chatId);
+        Chat chat = chatService.chatById(chatId).data();
 
         if(chat.getId()==null){
             throw new Exception("Chat not found");

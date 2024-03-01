@@ -1,7 +1,6 @@
 package com.socialLogin.project.service.impl;
 
 import com.socialLogin.project.dto.BaseResponse;
-import com.socialLogin.project.dto.response.UserResponse;
 import com.socialLogin.project.entity.Comment;
 import com.socialLogin.project.entity.Post;
 import com.socialLogin.project.entity.Users;
@@ -11,6 +10,7 @@ import com.socialLogin.project.service.CommentService;
 import com.socialLogin.project.service.PostService;
 import com.socialLogin.project.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -32,9 +32,10 @@ public class CommentServiceImpl implements CommentService {
     PostRepository postRepository;
 
     @Override
-    public Comment createComment(Comment comment, Integer userId, Integer postId) {
+    public BaseResponse<Comment> createComment(Comment comment, Integer userId, Integer postId) {
 
-        Users users = userService.findById(userId);
+        Users users = userService.findById(userId).data();
+
         Post post = postService.getPostById(postId);
 
         comment.setUsers(users);
@@ -47,7 +48,9 @@ public class CommentServiceImpl implements CommentService {
         post.setComments(comments);
         postRepository.save(post);
 
-        return savedComment ;
+        return new BaseResponse<>(HttpStatus.OK.value(),
+                "Comment Created",
+                savedComment);
     }
 
     @Override
@@ -61,16 +64,18 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public Comment likeComment(Integer commentId, Integer userId) {
-        BaseResponse<UserResponse> users = userService.findById(userId);
+    public BaseResponse<Comment> likeComment(Integer commentId, Integer userId) {
+        BaseResponse<Users> users = userService.findById(userId);
         Comment comment = findCommentById(commentId);
 
-        if(!comment.getLikedComments().contains(users)){
-            comment.getLikedComments().add(users);
-        }else {
+        if (!comment.getLikedComments().contains(users)) {
+            comment.getLikedComments().add(users.data());
+        } else {
             comment.getLikedComments().remove(users);
         }
 
-        return commentRepository.save(comment);
+        return new BaseResponse<>(HttpStatus.OK.value(),
+                "Comment Liked"
+                , commentRepository.save(comment));
     }
 }

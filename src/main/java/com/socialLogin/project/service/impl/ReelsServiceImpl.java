@@ -1,9 +1,6 @@
 package com.socialLogin.project.service.impl;
 
 import com.socialLogin.project.dto.BaseResponse;
-import com.socialLogin.project.dto.request.ReelRequest;
-import com.socialLogin.project.dto.response.ReelResponse;
-import com.socialLogin.project.dto.response.UserResponse;
 import com.socialLogin.project.entity.Reels;
 import com.socialLogin.project.entity.Users;
 import com.socialLogin.project.repository.ReelsRepository;
@@ -26,9 +23,9 @@ public class ReelsServiceImpl implements ReelsService {
     private UserService userService;
 
     @Override
-    public BaseResponse<ReelResponse> createReel(ReelRequest reels, String token) {
+    public BaseResponse<Reels> createReel(Reels reels, String token) {
         // Retrieve user information from token
-        UserResponse userResponse = userService.findUserFromToken(token).data();
+        Users userResponse = userService.findUserFromToken(token).data();
 
         // Construct Reels object from ReelRequest
         Reels reelsEntity = Reels.builder()
@@ -41,10 +38,10 @@ public class ReelsServiceImpl implements ReelsService {
         Reels createdReel = reelsRepository.save(reelsEntity);
 
         // Construct ReelResponse from created Reels object
-        ReelResponse reelResponse = ReelResponse.builder()
+        Reels reelResponse = Reels.builder()
                 .title(createdReel.getTitle())
                 .video(createdReel.getVideo())
-                .userResponse(userResponse)
+                .users(userResponse)
                 .build();
 
         // Create and return the BaseResponse
@@ -52,30 +49,23 @@ public class ReelsServiceImpl implements ReelsService {
     }
 
     @Override
-    public BaseResponse<List<ReelResponse>> findAllReels() {
+    public BaseResponse<List<Reels>> findAllReels() {
         List<Reels>reels=reelsRepository.findAll();
-        List<ReelResponse> response = reels.stream()
-                .map(this::mapToResponse).collect(Collectors.toList());
+
         return  new BaseResponse<>(HttpStatus.OK.value(),
                 "Fetched All Reels",
-                response);
+                reels);
     }
 
     @Override
-    public List<Reels> findUserReels(Integer userId) throws Exception {
+    public BaseResponse<List<Reels>> findUserReels(Integer userId) throws Exception {
 
         List<Reels> reels = reelsRepository.findByUserId(userId);
 
         if (reels.isEmpty()){
             throw new Exception("No Reel Found of this User");
         }
-        return reels;
-    }
-
-    private ReelResponse mapToResponse(Reels reels){
-        return ReelResponse.builder()
-                .title(reels.getTitle())
-                .video(reels.getVideo())
-                .build();
+        return new BaseResponse<>(HttpStatus.OK.value(),
+                "User Id via Id",reels);
     }
 }
